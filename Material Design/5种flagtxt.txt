@@ -1,0 +1,62 @@
+1 CoordinatorLayout -> 协调者
+  2 AppBarLayout ->lineralayout
+     3 CollapsingToolbarLayout ->可折叠的toolBar
+       4 ImageView
+   5 NestedScrollView  
+     6 TextView
+
+layout_scrollFlags ->AppBarLayout 
+scroll -> n ->5
+       -> y ->2,5
+当滚动控件发生滚动的时候,设置了layout_scrollFlags也会跟着发生滚动 
+
+下拉    enterAlways 
+	当设置了layout_scrollFlags滚出屏幕后,下拉拉,先响应layout_scrollFlags的控件,在响应ScrollView
+
+下拉    enterAlwaysCollapsed
+	需与enterAlways 配合使用,设置一个android:minHeight="100dp"这个属性.
+	当设置了layout_scrollFlags滚出屏幕后,下拉拉,先响应layout_scrollFlags的控件,当他显示了minHeight以后,再响应ScrollView
+
+上推	exitUntilCollapsed
+	向上推的时候,先将响应layout_scrollFlags的控件,将它推到android:minHeight="100dp之后响应ScrollView.
+
+自动滑动到高度最小或最大    snap
+
+
+CollapsingToolbarLayout
+
+			layout_collapseMode <- >  以何种模式折叠 -> parallax 视差
+                                                                 -> pin 固定
+      			layout_collapseParallaxMultiplier
+                       
+                        contentScrim 折叠后的颜色
+  
+                        expandedTitleMarginStart 折叠开始前title的布局
+	  		 
+ 			collapsedTitleGravity 折叠结束后title的布局
+				
+				文字的颜色要用代码设置
+
+			CollapsingToolbarLayout显示文字的必要条件
+				1.Toolbar必须是ToolbarLayout的直接子控件，
+				2.Toolbar的高度必须是android:layout_height="?attr/actionBarSize"
+
+CoordinatorLayout 各个控件的布局
+
+ layout_anchor="id" 以哪个控件作为锚点 默认情况在左上
+ layout_anchorGravity 在锚点的什么位置
+
+*****app:layout_behavior
+
+ jk fl
+
+Behavior<观察者的控件类型>
+    //告诉CoordinatorLayout 被观察者的类型
+    layoutDependsOn
+    onDependentViewChanged
+
+
+android.support.design.widget.AppBarLayout$ScrollingViewBehavior
+
+观察者 NestedScrollView
+被观察者 AppBarLayout  offsetTopAndBottom

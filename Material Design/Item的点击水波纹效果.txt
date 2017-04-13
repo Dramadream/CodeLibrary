@@ -1,0 +1,3 @@
+item的水波纹效果在你item的View加上这一条属性：
+
+android:foreground="?android:attr/selectableItemBackground"
