@@ -1,0 +1,4 @@
+android:focusable="true"
+android:focusableInTouchMode="true"
+
+将这两个属性加入到EditText的某层父控件属性中即可。
