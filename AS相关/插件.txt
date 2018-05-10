@@ -1,0 +1,15 @@
+drawable Importer
+Parcelable code generator
+gasonformat
+CodeGlance
+ECTranslation
+EventBus相关
+findViewByMe
+Alibaba Java Coding Guidelines
+MarkDown Support
+
+SDK Manager
+SDK Platforms
+	19-27
+SDK Tools
+	CMake、LLDB、SDK_Build-Tools、SDK Tools、SDK Plantform-Tools、HAXM、SupportRepository
