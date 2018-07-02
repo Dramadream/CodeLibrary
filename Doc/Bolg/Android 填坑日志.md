@@ -197,4 +197,68 @@ LayoutInflater.from(parent.getContext()).inflate(R.layout.inflate_test_item,pare
    app:layout_constraintGuide_percent   // 距离顶部或左边的百分比。0.5/0.8
    ```
 
-   
+
+# 6. Glide集成出错
+
+```
+"void com.bumptech.glide.module.RegistersComponents.registerComponents(android.content.Context, com.bumptech.glide.Glide, com.bumptech.glide.Registry)"
+```
+
+这是要添加一个类并复写其中的方法
+
+```java
+@GlideModule
+public class MyAppGlideModule extends AppGlideModule {
+    @Override
+    public boolean isManifestParsingEnabled() {
+        return false;
+    }
+}
+```
+# 7. Dialog的属性
+
+# 8.TextView相关
+
+1. 动态设置字体大小
+
+   ```java
+   tv.setTextSize(TypedValue.COMPLEX_UNIT_PX,15); //22像素 
+   tv.setTextSize(TypedValue.COMPLEX_UNIT_SP,15); //22SP 
+   tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);//22DIP
+   ```
+
+
+# 9.View的onTouchListener问题
+
+View中可以接收到ACTION_DOWN却不能收到ACTION_MOVE和ACTION_UP事件
+
+要设置clickable为true，即可解决
+
+```java
+view.setClickable(true);
+```
+# 10. RecyclerView滑动相关的几个方法
+
+![原理图 ](http://static.open-open.com/lib/uploadImg/20160919/20160919143609_419.png)
+
+computeVerticalScroll**Extent**()是当前屏幕显示的区域高度；
+
+computeVerticalScroll**Offset**() 是当前屏幕之前滑过的距离
+
+computeVerticalScroll**Range**()是整个View控件的高度。
+
+# 11. 截屏的实现
+
+https://www.cnblogs.com/BoBoMEe/p/4556917.html
+
+# 12.免费私有云
+
+BitBucket：<https://bitbucket.org/>
+
+ 开源中国：<http://git.oschina.net/> 
+
+GitCafe：<https://gitcafe.com/> 
+
+GitLab：<http://www.gitlab.org/> 
+
+coding：<https://coding.net/> 

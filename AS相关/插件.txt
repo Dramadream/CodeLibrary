@@ -1,12 +1,23 @@
-drawable Importer
+必备：
 Parcelable code generator
 gasonformat
-CodeGlance
-ECTranslation
-EventBus相关
+CodeGlance -- 右侧代码预览
 findViewByMe
+ECTranslation  -- 翻译
+
+
+实用：
+drawable Importer -- 导入图片
 Alibaba Java Coding Guidelines
+EventBus3 Intellij Plugin 
+Protobuf Support
+
+
+
 MarkDown Support
+
+
+
 
 SDK Manager
 SDK Platforms
