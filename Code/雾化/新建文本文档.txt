@@ -1,0 +1,5 @@
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mRlBackground.setBackground(new BitmapDrawable(getResources(), FastBlue.fastblur(this, bitmap, 25)));// 虚拟化
+        } else {
+            mRlBackground.setBackgroundDrawable(new BitmapDrawable(getResources(), FastBlue.fastblur(this, bitmap, 25)));// 虚拟化
+        }

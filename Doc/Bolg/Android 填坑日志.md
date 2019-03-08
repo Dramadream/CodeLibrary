@@ -37,6 +37,12 @@
    onBind = false;
    ```
 
+```java
+if (recycleview.getScrollState() == RecyclerView.SCROLL_STATE_IDLE || (leagues_recycleview.isComputingLayout() == false)) {
+         adpater.notifyDataSetChanged();
+}
+```
+
 
 
 # 2. EditText 焦点问题
@@ -46,8 +52,10 @@
 在父布局中加入下面属性即可
 
 ```xml
- android:focusable="true"//是否可聚焦
- android:focusableInTouchMode="true"//是否是触摸方式获取焦点
+//是否可聚焦 
+android:focusable="true"
+android:focusableInTouchMode="true"
+//是否是触摸方式获取焦点
 ```
 
 2.  解决有EditText的界面，软键盘和EditText焦点切换的问题
@@ -267,9 +275,15 @@ coding：<https://coding.net/>
 
 # 13. EditText可变高度
 
-```xml
-android:inputType="textMultiLine"
-android:maxLines="4"
+注意下面的代码顺序不能错
+
+```java
+etAddComment.setHorizontallyScrolling(false);
+etAddComment.setImeOptions(EditorInfo.IME_ACTION_SEND);
+etAddComment.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
+etAddComment.setOnEditorActionListener(this);
+etAddComment.setSingleLine(false);
+etAddComment.setMaxLines(3);
 ```
 
 # 14.GestureDetector
@@ -292,3 +306,55 @@ android:maxLines="4"
 
 **4.SimpleOnGestureListener，实现了上面三个接口的类，拥有上面三个的所有回调方法。** 
 \- 由于SimpleOnGestureListener不是抽象类，所以继承它的时候只需要选取我们所需要的回调方法来重写就可以了，非常方便，也减少了代码量，符合接口隔离原则，也是模板方法模式的实现。而实现上面的三个接口中的一个都要全部重写里面的方法，所以我们一般都是选择SimpleOnGestureListener。
+
+# 15.RelativeLayout和LinearLayout性能比较 
+
+https://blog.csdn.net/guyuealian/article/details/52162774
+
+# 16.Dialog根布局为ConstraintLayout会出Bug
+
+# 17.TabLayout点击效果颜色
+
+```java
+tabLayout.setTabRippleColor(ColorStateList.valueOf(getResources().getColor(R.color.bg_top_title_2A253C)));
+tabLayout.setUnboundedRipple(true);
+```
+
+# 18.Dialog 生命周期
+
+	1. 点击显示按钮，第一次显示Dialog，然后按BACK键返回。
+	show() —> onCreate() —> onStart();
+	cancel() —> onDismiss() —> Stop();
+	2. 再次点击显示按钮，然后点击Dialog外部。
+	show() —> onStart();
+	cancel() —> onDismiss() —> Stop();
+	3. 再次点击显示按钮，然后执行Dialog.dismiss() 方法。
+	show() —> onStart();
+	onDismiss() —> Stop();
+
+# 19. 部分机型无法显示Toast
+
+1.确定系统中打开了通知权限；
+
+2.确定Manifest中添加了统治权限
+
+```xml
+<!-- 通知权限 -->
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+```
+# 20.显示透明Activity
+
+```xml
+<style name="translucent" parent="AppTheme">
+    <item name="android:windowBackground">@color/translucent_background</item>
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
+</style>
+```
+
+```xml
+<color name="translucent_background">#00000000</color>
+```
+
+再在AndroidManifest中给Activity指定Theme
+
