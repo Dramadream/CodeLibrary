@@ -358,3 +358,53 @@ tabLayout.setUnboundedRipple(true);
 
 再在AndroidManifest中给Activity指定Theme
 
+
+
+# 21.Gradle 配置
+
+https://www.jb51.net/article/145005.htm
+
+```
+buildTypes {// 生产/测试环境配置
+  release {// 生产环境
+   buildConfigField("boolean", "LOG_DEBUG", "false")//配置Log日志
+   buildConfigField("String", "URL_PERFIX", "\"https://release.cn/\"")// 配置URL前缀
+   minifyEnabled false//是否对代码进行混淆
+   proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'//指定混淆的规则文件
+   signingConfig signingConfigs.release//设置签名信息
+   pseudoLocalesEnabled false//是否在APK中生成伪语言环境，帮助国际化的东西，一般使用的不多
+   zipAlignEnabled true//是否对APK包执行ZIP对齐优化，减小zip体积，增加运行效率
+   applicationIdSuffix 'test'//在applicationId 中添加了一个后缀，一般使用的不多
+   versionNameSuffix 'test'//在applicationId 中添加了一个后缀，一般使用的不多
+  }
+  debug {// 测试环境
+   buildConfigField("boolean", "LOG_DEBUG", "true")//配置Log日志
+   buildConfigField("String", "URL_PERFIX", "\"https://test.com/\"")// 配置URL前缀
+   minifyEnabled false//是否对代码进行混淆
+   proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'//指定混淆的规则文件
+   signingConfig signingConfigs.debug//设置签名信息
+   debuggable false//是否支持断点调试
+   jniDebuggable false//是否可以调试NDK代码
+   renderscriptDebuggable false//是否开启渲染脚本就是一些c写的渲染方法
+   zipAlignEnabled true//是否对APK包执行ZIP对齐优化，减小zip体积，增加运行效率
+   pseudoLocalesEnabled false//是否在APK中生成伪语言环境，帮助国际化的东西，一般使用的不多
+   applicationIdSuffix 'test'//在applicationId 中添加了一个后缀，一般使用的不多
+   versionNameSuffix 'test'//在applicationId 中添加了一个后缀，一般使用的不多
+  }
+ }
+```
+
+release{}闭包和debug{}闭包两者能配置的参数相同，最大的区别默认属性配置不一样：
+
+- minifyEnabled：表明是否对代码进行混淆，true表示对代码进行混淆，false表示对代码不进行混淆，默认的是false。
+- proguardFiles：指定混淆的规则文件，这里指定了proguard-android.txt文件和proguard-rules.pro文件两个文件，proguard-android.txt文件为默认的混淆文件，里面定义了一些通用的混淆规则。proguard-rules.pro文件位于当前项目的根目录下，可以在该文件中定义一些项目特有的混淆规则。
+- buildConfigField：用于解决Beta版本服务和Release版本服务地址不同或者一些Log打印需求控制的。例如：配置buildConfigField("boolean", "LOG_DEBUG", "true")，这个方法接收三个非空的参数，第一个：确定值的类型，第二个：指定key的名字，第三个：传值，调用的时候BuildConfig.LOG_DEBUG即可调用。
+- debuggable：表示是否支持断点调试，release默认为false，debug默认为true。
+- jniDebuggable：表示是否可以调试NDK代码，使用lldb进行c和c++代码调试，release默认为false
+- signingConfig：设置签名信息，通过signingConfigs.release或者signingConfigs.debug，配置相应的签名，但是添加此配置前必须先添加signingConfigs闭包，添加相应的签名信息。
+- renderscriptDebuggable：表示是否开启渲染脚本就是一些c写的渲染方法，默认为false。
+- renderscriptOptimLevel：表示渲染等级，默认是3。
+- pseudoLocalesEnabled：是否在APK中生成伪语言环境，帮助国际化的东西，一般使用的不多。
+- applicationIdSuffix：和defaultConfig中配置是一的，这里是在applicationId 中添加了一个后缀，一般使用的不多。
+- versionNameSuffix：表示添加版本名称的后缀，一般使用的不多。
+- zipAlignEnabled：表示是否对APK包执行ZIP对齐优化，减小zip体积，增加运行效率，release和debug默认都为true。
