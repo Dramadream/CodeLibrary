@@ -408,3 +408,37 @@ release{}闭包和debug{}闭包两者能配置的参数相同，最大的区别�
 - applicationIdSuffix：和defaultConfig中配置是一的，这里是在applicationId 中添加了一个后缀，一般使用的不多。
 - versionNameSuffix：表示添加版本名称的后缀，一般使用的不多。
 - zipAlignEnabled：表示是否对APK包执行ZIP对齐优化，减小zip体积，增加运行效率，release和debug默认都为true。
+
+# 22.Okhttp cancel会造成onFaliure回调的解决方法
+
+测试发现不同的失败类型返回的IOException e 不一样，所以可以通过e.toString 中的关键字来区分不同的错误类型 
+
+```
+自己主动取消的错误的 java.net.SocketException: Socket closed
+超时的错误是 java.net.SocketTimeoutException
+网络出错的错误是java.net.ConnectException: Failed to connect to xxxxx
+```
+
+SO： 可以这样方便的处理
+
+```java
+ call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if(e.toString().contains("closed")) {
+                 //如果是主动取消的情况下
+                }else{
+                  //其他情况下
+            }
+     ....
+```
+
+# 23. ScrollView有时会自动滑到最底部的解决办法
+
+​	当ScrollView里面布局很长的时候，Scroll会自动滑动到底部。原因可能是底部获取到了焦点。解决方法是**将焦点重新设置到上部的某个部件即可**，方法如下： 
+
+```java
+上部分的某控件.setFocusable(true);
+上部分的某控件.setFocusableInTouchMode(true);
+上部分的某控件.requestFocus();
+```
