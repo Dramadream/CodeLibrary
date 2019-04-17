@@ -8,16 +8,14 @@
 
 ### 集合
 
--  [java8 HashMap源码 详细研读](https://www.cnblogs.com/zhaojj/p/7805376.html)
+-  [java8 HashMap源码 详细研读][1]
 -  [Java 8系列之重新认识HashMap-美团技术团队](https://zhuanlan.zhihu.com/p/21673805)
 
 
 
 
 
-
-
--  [Google官方 Android编码规范](https://source.android.com/source/code-style#java-style-rules)
+-  [编码规范(Google官方)](Doc/Java基础/代码规范.md)
 
 
 
@@ -85,3 +83,4 @@
 
 
 
+[1]: https://www.cnblogs.com/zhaojj/p/7805376.html	"java8 HashMap源码 详细研读"
