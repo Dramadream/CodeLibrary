@@ -442,3 +442,433 @@ SO： 可以这样方便的处理
 上部分的某控件.setFocusableInTouchMode(true);
 上部分的某控件.requestFocus();
 ```
+# 24.点击水波纹
+
+```
+android:background="?attr/selectableItemBackgroundBorderless"
+android:background="?attr/selectableItemBackground"
+```
+# 25 微信进程保活
+
+1. 进程拆分
+
+将网络相关的，放到push进程中，这样，占用的内存非常小，这样就能尽量减少push被杀死的可能。
+
+题外话：微信3个进程：UI进程，Push进程，Gallery和WebView进程
+
+2. 进程保活
+
+   push有AlarmReceiver， ConnectReceiver，BootReceiver。这些receiver 都可以在push被杀后，重新拉起。特别AlarmReceiver ，结合心跳逻辑，微信被杀后，重新拉起最多一个心跳周期。  
+
+   历史原因，我们在push和worker通信使用Broadcast和AIDL。 
+
+3. 提高进程优先级
+
+
+
+# 26 Netty学习资料
+
+<https://github.com/BazingaLyn/netty-study> 
+
+# 27 关于Android 架构的一些思考
+
+1.为什么需要架构
+
+大型项目，多人开发，问题很多，大大的降低了开发效率。
+
+所以，最终目的是为了提高并行开发的效率和可维护性。
+
+2.如何架构
+
+其实最根本的核心原则就是单一职责原则。每个人负责每个人该写的代码，每个类有自己独特的职能。
+
+而做到这些的手段就是解耦，将大的项目分解成为N个小项目，再在小项目中分解为不同的包，不同的类。
+
+3.项目级别的架构：
+
+模块化，组件化，插件化。
+
+这种事根据模块来纵向划分。而横向划分，一般是划分出层次，具体到某个业务的架构：MVX，X指P,C,VM等
+
+
+
+# 28 手机归属地查询
+
+百度  GET
+http://mobsec-dianhua.baidu.com/dianhua_api/open/location?tel=18692276974
+淘宝  GET
+https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=18692276974
+
+
+
+# 29.安装Apk
+
+1. 8.0以上需要加上
+
+```
+<!-- 允许安装apk，8.0 以上需要加上 -->
+<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+```
+
+2. 然后在安装的地方检测是否有权限，如果没权限，要去申请。
+
+```java
+/**
+ * 检测是否有权限
+ */
+@RequiresApi (api = Build.VERSION_CODES.O)
+private boolean isHasInstallPermissionWithO(Context context){
+    if (context == null){
+        return false;
+    }
+    return context.getPackageManager().canRequestPackageInstalls();
+}
+```
+
+
+
+```java
+/**
+ * 开启设置安装未知来源应用权限界面
+ * @param context
+ */
+@RequiresApi (api = Build.VERSION_CODES.O)
+private void startInstallPermissionSettingActivity(Context context) {
+    if (context == null){
+        return;
+    }
+    Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+    ((Activity)context).startActivityForResult(intent,REQUEST_CODE_APP_INSTALL);
+}
+```
+
+
+
+```kotlin
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode== Activity.RESULT_OK ){
+            when(requestCode){
+                REQUEST_CODE_APP_INSTALL -> {
+                    onSettingCheckUpdate()
+                }
+            }
+        }
+    }
+```
+
+# 30.Matisse的使用
+
+
+
+```java
+Matisse.from(this)
+        // 资源类型，图片还是视频还是其它
+        .choose(MimeType.ofImage())
+        // 是否支持拍照
+        .capture(true)
+        // 7.0 以上拍照需要的FileProvider路径
+        .captureStrategy(MatisseUtil.getCaptureStrategy())
+        // 图片加载
+        .imageEngine(new Glide4Engine())
+        // 最多选几张
+        .maxSelectable(count)
+        // 选中后是否显示数字
+        .countable(true)
+        .forResult(REQUEST_CODE_CHOOSE);
+```
+
+- 关于FileProvider路径
+
+  - 在res/xml下新建file_paths_public.xml
+
+  ```xml
+  <paths>
+      <external-path
+          name="my_images"
+          path="Pictures"/>
+  </paths>
+  ```
+
+  - manifest的Application下添加。注意resource的名字和刚刚新建的要一样
+
+  ```xml
+  <provider
+      android:name="android.support.v4.content.FileProvider"
+      android:authorities="${applicationId}.fileprovider"
+      android:exported="false"
+      android:grantUriPermissions="true">
+      <meta-data
+          android:name="android.support.FILE_PROVIDER_PATHS"
+          android:resource="@xml/file_paths_public">
+      </meta-data>
+  </provider>
+  ```
+
+# 31.线程池
+
+核心线程，任务队列，非核心线程。
+
+
+
+1. 线程池执行任务的原则
+
+   1. 线程数未达到核心线程的最大值，会直接启动核心线程来执行任务；
+   2. 线程已达到或超过核心线程的最大值，那么任务会被插到任务队列中排队等待执行；
+   3. 任务队列已满，且非核心线程未满，那么会启动新的非核心线程来执行任务；
+   4. 任务队列已满，非核心线程也满，会抛出异常RejectedExecution。
+
+2. 普通线程池的创建
+
+   ```java
+   /**
+    * @param corePoolSize    核心线程数量，除非allowCoreThreadTimeOut被设置为True，否则它空闲时也不会死
+    * @param maximumPoolSize 最大线程数，减去corePoolSize就是最大非核心线程数量了
+    * @param keepAliveTime   闲置时长，超时后线程就会被回收，作用与非核心线程(allowCoreThreadTimeOut为True时，也会对核心线程生效)。当任务很多，每个任务执行时间很短的情况下调大该值有助于提高线程利用率。
+    * @param unit            闲置时长的单位
+    * @param workQueue       缓冲任务队列
+    * @param threadFactory   线程工厂，可用于设置线程名字等等，一般无须设置该参数。
+    */
+   public ThreadPoolExecutor(int corePoolSize,
+                             int maximumPoolSize,
+                             long keepAliveTime,
+                             TimeUnit unit,
+                             BlockingQueue<Runnable> workQueue,
+                             ThreadFactory threadFactory) {
+       ...
+   }
+   ```
+
+   
+
+3. 四种主要的线程池
+
+4. FixedThreadPool
+
+   ```java
+       public static ExecutorService newFixedThreadPool(int nThreads) {
+           // 两个Size数量一样，只有核心线程
+           return new ThreadPoolExecutor(nThreads, nThreads,
+                                         // 闲置时不会被回收
+                                         0L, TimeUnit.MILLISECONDS,
+                                         // 无上限的基于链表的队列，这里表明可以有无限制个任务在排队
+                                         new LinkedBlockingQueue<Runnable>());
+       }
+   ```
+
+   - 只有核心线程，且线程数量固定的线程池，线程不会被回收，除非线程池关闭。
+   - 当线程池被填满后，新的任务会处于等待状态，直到有新的线程闲置，且任务队列数量无上限。
+
+   FixedThreadPool适合**执行长期的任务，性能好很多** 。
+
+   
+
+5. CachedThreadPool
+
+   ```java
+   public static ExecutorService newCachedThreadPool() {
+       // 没有核心线程，只有非核心线程
+       return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                     // 闲置时间为60秒
+                                     60L, TimeUnit.SECONDS,
+                                     // SynchronousQueue是没有容量的无缓冲队列，意思是，加入到这个队列之后，会立马被移出去。这里就移到了非核心线程中
+                                     new SynchronousQueue<Runnable>());
+   }
+   ```
+
+   - 只有非核心线程，线程数量不固定，最大线程数为Integer.MAX_VALUE，线程闲置超时时间为60秒。
+
+   - SynchronousQueue是不存储元素的，每次插入操作必须伴随一个移除操作，一个移除操作也要伴随一个插入操作。 
+
+   - 当一个任务执行时，先用SynchronousQueue的offer提交任务，如果线程池中有线程空闲，则调用SynchronousQueue的poll方法来移除任务并交给线程处理；如果没有线程空闲，则开启一个新的非核心线程来处理任务。
+   - 由于maximumPoolSize是无界的，所以如果线程处理任务速度小于提交任务的速度，则会不断地创建新的线程，这时需要注意不要过度创建，应采取措施调整双方速度，不然线程创建太多会影响性能。
+   - CachedThreadPool适用于**有大量需要立即执行的耗时少的任务**的情况。 
+
+   
+
+6. SingleThreadPool
+
+   ```java
+   public static ExecutorService newSingleThreadExecutor() {
+       return new FinalizableDelegatedExecutorService
+           // 只有一个核心线程，且不会被主动回收
+           (new ThreadPoolExecutor(1, 1,
+                                   0L, TimeUnit.MILLISECONDS,
+                                   // 无上限的基于链表的队列，这里表明可以有无限制个任务在排队
+                                   new LinkedBlockingQueue<Runnable>()));
+   }
+   ```
+
+   只有一个核心线程，其它的任务可能要等待，所有的任务都在同一个线程中执行。
+
+7. ScheduledThreadPool
+
+   核心线程数量固定，主要用于执行定时或周期任务。
+
+   非核心线程数量不固定，但闲置时会被回收。
+
+   用法和其它的定时器差不对。
+
+
+
+4. 任务队列
+
+   由于上面的构造方法涉及到了阻塞队列，所以补充一些阻塞队列的知识。
+    阻塞队列：我的理解是，生产者——消费者，生产者往队列里放元素，消费者取，如果队列里没有元素，消费者线程取则阻塞，如果队列里元素满了，则生产者线程阻塞。
+
+   常见的阻塞队列有下列7种：
+
+   ```
+   ArrayBlockingQueue ：一个由数组结构组成的有界阻塞队列。
+   LinkedBlockingQueue ：一个由链表结构组成的有界阻塞队列。
+   PriorityBlockingQueue ：一个支持优先级排序的无界阻塞队列。
+   DelayQueue：一个使用优先级队列实现的无界阻塞队列。
+   SynchronousQueue：一个不存储元素的阻塞队列。
+   LinkedTransferQueue：一个由链表结构组成的无界阻塞队列。
+   LinkedBlockingDeque：一个由链表结构组成的双向阻塞队列。
+   ```
+
+5. 其它方法
+
+   ```java
+   1.shutDown()  关闭线程池，不影响已经提交的任务
+   
+   2.shutDownNow() 关闭线程池，并尝试去终止正在执行的线程
+   
+   3.allowCoreThreadTimeOut(boolean value) 允许核心线程闲置超时时被回收
+   
+   4.submit 一般情况下我们使用execute来提交任务，但是有时候可能也会用到submit，使用submit的好处是submit有返回值。
+   
+   5.beforeExecute() - 任务执行前执行的方法
+   
+   6.afterExecute() -任务执行结束后执行的方法
+   
+   7.terminated() -线程池关闭后执行的方法
+   ```
+
+
+
+参考链接：
+
+- [Android 线程池原理及使用](https://www.jianshu.com/p/7b2da1d94b42 )
+- [常见的四种线程池和区别](https://www.cnblogs.com/1925yiyi/p/9040605.html )
+- [Android开发——Android中常见的4种线程池（保证你能看懂并理解）](https://blog.csdn.net/seu_calvin/article/details/52415337 )
+
+
+
+# 32.需要注意的技术
+
+- FlexboxLayout，FlowLayout 流式布局
+- 
+
+
+
+# 33.ARouter
+
+1. path是指支持路由的界面上添加的，这里的意思其实是具体实现类的路径，所以注意path至少两级，并且顶级姚宇module相同。
+
+2. 疑问：`IProvider可不可以有两个实现类，两个实现类的注解路径怎么处理？`
+
+3. ARouter传递对象的方法
+
+   1. 使用withObject：需要添加对该对象的处理类，实现**SerializationService**，并在目标界面实例化该类
+
+      ```java
+      // 使用withObject传递数据
+      ARouter.getInstance().build("/test/1")
+                  .withObejct("key4", new Test("Jack", "Rose"))
+                  .navigation();
+                  
+      /**
+       * 处理传递参数中自定义的Object---》withObject，实现SerializationService。
+       * Object 和 json 的相互转换
+       */
+      @Route(path = "/custom/json")
+      public class JsonSerializationService implements SerializationService {
+          Gson gson;
+          @Override
+          public <T> T json2Object(String input, Class<T> clazz) {
+              return gson.fromJson(input,clazz);
+          }
+          @Override
+          public String object2Json(Object instance) {
+              return gson.toJson(instance);
+          }
+          @Override
+          public <T> T parseObject(String input, Type clazz) {
+              return gson.fromJson(input,clazz);
+          }
+          @Override
+          public void init(Context context) {
+              gson = new Gson();
+          }
+      }
+      
+      
+      /**
+       * 目标Activity的处理
+       */
+      @Route(path = "/test/1")
+      public class YourActivity extend Activity {
+          ...
+          SerializationService serializationService = ARouter.getInstance().navigation(SerializationService.class);
+          serializationService.init(this);
+          User obj = serializationService.parseObject(getIntent().getStringExtra("key4"), User.class);
+      }
+      
+      ```
+
+4. Uri跳转，不会
+
+5. 跳转结果也可以监听
+
+6. 拦截器为什么不能是内部类？
+
+   ```java
+   // 创建拦截器对象的方法是使用反射。
+   // 而对于非静态内部类，使用getConstructor()的方式是获取不到构造器的
+   IInterceptor iInterceptor = interceptorClass.getConstructor().newInstance();
+   ```
+
+
+
+
+
+
+# 34. 多Module混淆
+
+两种方法
+
+1. 全部在主模块中配置混淆信息
+
+2. 在各自的模块中配置混淆信息
+
+   需要在Gradle中配置混淆信息
+
+   ```java
+   release {    consumerProguardFiles 'proguard-rules.pro'}
+   ```
+
+
+
+# 35 组件化
+
+https://juejin.im/post/5b5f17976fb9a04fa775658d?tdsourcetag=s_pctim_aiomsg
+
+https://blog.csdn.net/guiying712/article/details/55213884?tdsourcetag=s_pctim_aiomsg
+
+
+
+# 36 后台任务
+
+https://www.cnblogs.com/qoix/p/9649322.html
+
+| 场景                           | 推荐                          |
+| ------------------------------ | ----------------------------- |
+| 需系统触发，不必完成           | ThreadPool + Broadcast        |
+| 需系统触发，必须完成，可推迟   | WorkManager                   |
+| 需系统触发，必须完成，立即     | ForegroundService + Broadcast |
+| 不需系统触发，不必完成         | ThreadPool                    |
+| 不需系统触发，必须完成，可推迟 | WorkManager                   |
+| 不需系统触发，必须完成，立即   | ForegroundService             |
+
