@@ -1,0 +1,10 @@
+1. 覆盖低版本安装
+adb install -r xx.apk
+2. 覆盖高版本
+adb install -r -d xxx.apk
+
+3. 卸载
+adb uninstall 
+
+4. 选择设备
+adb -s
