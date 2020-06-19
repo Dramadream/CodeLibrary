@@ -872,3 +872,21 @@ https://www.cnblogs.com/qoix/p/9649322.html
 | 不需系统触发，必须完成，可推迟 | WorkManager                   |
 | 不需系统触发，必须完成，立即   | ForegroundService             |
 
+
+
+# 37 ROOM
+
+SQLite的ALTER TABLE命令[非常局限](https://link.jianshu.com/?t=https%3A%2F%2Fsqlite.org%2Flang_altertable.html)，只支持重命名表以及添加新的字段
+
+
+
+
+
+# 38 6.0 7.0 8.0 升级问题记录
+
+1. 6.0 动态权限申请
+2. 7.0 应用间文件共享受限，需要使用FileProvider
+3. 8.0 Notification必须要有Channel，且需要检查通知权限
+4. 8.0 后台进程限制
+5. 8.0 隐式广播不可用，必须使用显示广播
+6. 8.0 悬浮窗类型更改
